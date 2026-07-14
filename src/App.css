@@ -1,0 +1,66 @@
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.app-head { text-align: center; }
+.app-head h1 { font-size: 1.7rem; }
+.app-sub {
+  margin: 4px 0 0;
+  color: #6b6480;
+  font-size: 0.95rem;
+}
+
+.stage {
+  border-radius: 24px;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+  transition: background 0.3s ease;
+}
+
+.panel {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  background: #fff;
+  border: 2px solid #ece9f4;
+  border-radius: 20px;
+  padding: 20px;
+}
+.card-q {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.card-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.control-group { display: flex; flex-direction: column; gap: 8px; }
+.control-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9990ad;
+}
+.control-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.control-row .press-btn { flex: 1; font-size: 0.95rem; padding: 12px 14px; }
+.control-row .press-btn:disabled { opacity: 0.45; cursor: not-allowed; }
