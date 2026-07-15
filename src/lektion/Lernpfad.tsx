@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { Mascot } from "../mascot/Mascot";
+import type { MascotCharacter } from "../mascot/mascotData";
 import {
   fundament,
   type Aufgabe,
@@ -17,13 +18,21 @@ import {
  * ────────────────────────────────────────────────────────────────────────── */
 type CoachState = "neutral" | "freude" | "aufmuntern";
 function Coach({
+  character,
   state,
   size = "coach",
 }: {
+  character: MascotCharacter;
   state: CoachState;
   size?: "coach" | "hero";
 }) {
-  return <Mascot character="momo" state={state} size={size} />;
+  return <Mascot character={character} state={state} size={size} />;
+}
+
+/** Eine der drei Figuren zufällig wählen (pro Aufgabe, nicht pro Render). */
+const FIGUREN: MascotCharacter[] = ["momo", "pi", "gauss"];
+function zufallsFigur(): MascotCharacter {
+  return FIGUREN[Math.floor(Math.random() * FIGUREN.length)];
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -205,6 +214,7 @@ function LektionSpielen({
   const [eingabe, setEingabe] = useState("");
   const [auswahl, setAuswahl] = useState<string[]>([]);
   const [hinweisOffen, setHinweisOffen] = useState(false);
+  const [figur, setFigur] = useState<MascotCharacter>(zufallsFigur);
 
   const fertig = queue.length === 0;
   const aufgabe = queue[0];
@@ -214,6 +224,7 @@ function LektionSpielen({
     setAuswahl([]);
     setHinweisOffen(false);
     setPhase("eingabe");
+    setFigur(zufallsFigur()); // neue Figur für die nächste Aufgabe
   }
 
   function neuStarten() {
@@ -242,7 +253,7 @@ function LektionSpielen({
     return (
       <div style={{ ...wrap, textAlign: "center" }}>
         <div style={{ marginTop: 40, marginBottom: 8 }}>
-          <Coach state="freude" size="hero" />
+          <Coach character={figur} state="freude" size="hero" />
         </div>
         <h1 style={{ fontSize: "1.9rem" }}>Geschafft!</h1>
         <p style={{ color: "#6f6786", margin: "10px 0 30px", lineHeight: 1.5 }}>
@@ -309,7 +320,7 @@ function LektionSpielen({
 
       {/* Coach + Frage */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
-        <Coach state={phase === "feedback" ? (korrekt ? "freude" : "aufmuntern") : "neutral"} />
+        <Coach character={figur} state={phase === "feedback" ? (korrekt ? "freude" : "aufmuntern") : "neutral"} />
         <div
           style={{
             background: "var(--bubble)",
