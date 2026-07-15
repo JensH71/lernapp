@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/einstufungstestlernapp.jsx","./src/main.tsx","./src/mascot/mascot.tsx","./src/mascot/mascotdata.ts","./vite-env.d.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/einstufungstestlernapp.jsx","./src/main.tsx","./src/content/index.ts","./src/content/rechensicherheit.ts","./src/content/types.ts","./src/lektion/lernpfad.tsx","./src/mascot/mascot.tsx","./src/mascot/mascotdata.ts","./vite-env.d.ts"],"version":"5.9.3"}
