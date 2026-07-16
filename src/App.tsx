@@ -1,10 +1,8 @@
 import { useState } from "react";
 import EinstufungstestLernapp from "./EinstufungstestLernapp";
 import Lernpfad from "./lektion/Lernpfad";
-
 export default function App() {
   const [ansicht, setAnsicht] = useState<"lernpfad" | "test">("lernpfad");
-
   return (
     <>
       {/* Kleiner Umschalter: Lektionen ↔ Einstufungstest bleiben beide erreichbar */}
@@ -33,7 +31,6 @@ export default function App() {
           Einstufungstest
         </button>
       </nav>
-
       {ansicht === "lernpfad" ? <Lernpfad /> : <EinstufungstestLernapp />}
     </>
   );

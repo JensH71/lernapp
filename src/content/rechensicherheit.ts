@@ -6,6 +6,9 @@ import type { Einheit } from "./types";
  * Fehlerbilder: Potenzen negativer Zahlen (z. B. (−3)³), Vorzeichen bei Klammern,
  * Potenzgesetze.
  *
+ * FRISCHER AUFGABENSATZ (gleicher Schwierigkeitsgrad, neue Items/IDs) — damit
+ * Aglaja unverbrauchte Aufgaben rechnet und wir saubere reale Logdaten bekommen.
+ *
  * Aufbau: Skill A (Vorzeichen) → Skill B (Potenzen mit Vorzeichen, 2 Kronen-Level)
  * → Skill C (Potenzgesetze). Krone-1-Lektionen tragen `hinweis`; freiere Level nicht.
  */
@@ -28,103 +31,102 @@ export const rechensicherheit: Einheit = {
           krone: 1,
           aufgaben: [
             {
-              id: "a1",
+              id: "a8",
               typ: "single-choice",
-              frage: "Was ist −3 · (−4)?",
+              frage: "Was ist −6 · (−5)?",
               hinweis: "Bei · und : gilt: gleiche Vorzeichen → plus.",
               optionen: [
-                { id: "a", text: "12" },
-                { id: "b", text: "−12" },
-                { id: "c", text: "−7" },
-                { id: "d", text: "7" },
+                { id: "a", text: "30" },
+                { id: "b", text: "−30" },
+                { id: "c", text: "−11" },
+                { id: "d", text: "11" },
               ],
               richtig: "a",
               erklaerung:
-                "Minus mal Minus ergibt Plus. Die zwei negativen Faktoren heben ihr " +
-                "Vorzeichen auf: (−3)·(−4) = +12.",
+                "Minus mal Minus ergibt Plus: (−6)·(−5) = +30. Die zwei negativen " +
+                "Faktoren heben ihr Vorzeichen auf.",
               tags: ["vorzeichenregel", "produkt"],
             },
             {
-              id: "a2",
+              id: "a9",
               typ: "zahl",
-              frage: "Berechne: −4 − 5",
+              frage: "Berechne: −7 − 6",
               hinweis:
-                "Beide Schritte gehen nach unten: erst auf −4, dann noch 5 weiter ins Minus.",
-              loesung: -9,
+                "Beide Schritte gehen nach unten: erst auf −7, dann noch 6 weiter ins Minus.",
+              loesung: -13,
               erklaerung:
-                "Hier wird nichts abgezogen-vom-Positiven, sondern zweimal ins Minus " +
-                "gegangen: −4 und dann −5 dazu → −9. Auf dem Zahlenstrahl fünf Schritte " +
-                "links von −4.",
+                "Kein Abziehen von etwas Positivem, sondern zweimal ins Minus: −7 und " +
+                "dann −6 dazu → −13. Auf dem Zahlenstrahl sechs Schritte links von −7.",
               tags: ["addition-negativ"],
             },
             {
-              id: "a3",
+              id: "a10",
               typ: "zahl",
-              frage: "Berechne: 5 − (−8)",
+              frage: "Berechne: 4 − (−9)",
               hinweis: "Ein Minus vor einer Klammer dreht das Vorzeichen darin um.",
               loesung: 13,
               erklaerung:
-                "−(−8) = +8. Also 5 − (−8) = 5 + 8 = 13. Zwei Minuszeichen " +
+                "−(−9) = +9. Also 4 − (−9) = 4 + 9 = 13. Zwei Minuszeichen " +
                 "hintereinander werden zu einem Plus.",
               tags: ["minusklammer"],
             },
             {
-              id: "a4",
+              id: "a11",
               typ: "single-choice",
-              frage: "Was ist −(2 − 7)?",
+              frage: "Was ist −(3 − 8)?",
               hinweis: "Erst die Klammer ausrechnen, dann das äußere Minus anwenden.",
               optionen: [
-                { id: "a", text: "5" },
-                { id: "b", text: "−5" },
-                { id: "c", text: "9" },
-                { id: "d", text: "−9" },
+                { id: "a", text: "−5" },
+                { id: "b", text: "5" },
+                { id: "c", text: "11" },
+                { id: "d", text: "−11" },
               ],
-              richtig: "a",
+              richtig: "b",
               erklaerung:
-                "Innen zuerst: 2 − 7 = −5. Das Minus vor der Klammer dreht das " +
-                "ganze Ergebnis: −(−5) = 5.",
+                "Innen zuerst: 3 − 8 = −5. Das Minus vor der Klammer dreht das " +
+                "Ergebnis: −(−5) = 5.",
               tags: ["minusklammer"],
             },
             {
-              id: "a5",
+              id: "a12",
               typ: "zahl",
-              frage: "Berechne: −2 · (−3) · (−1)",
+              frage: "Berechne: −3 · (−1) · (−2)",
               hinweis: "Zähle die Minuszeichen: gerade Anzahl → plus, ungerade → minus.",
               loesung: -6,
               erklaerung:
                 "Drei Minuszeichen (ungerade) → das Produkt ist negativ. Der Betrag " +
-                "ist 2·3·1 = 6, also −6.",
+                "ist 3·1·2 = 6, also −6.",
               tags: ["vorzeichen-zaehlen", "produkt"],
             },
             {
-              id: "a6",
+              id: "a13",
               typ: "single-choice",
-              frage: "Welcher Term ist gleich −(a − b)?",
+              frage: "Welcher Term ist gleich −(x − y)?",
               hinweis: "Das äußere Minus dreht JEDES Vorzeichen in der Klammer.",
               optionen: [
-                { id: "a", text: "b − a" },
-                { id: "b", text: "a − b" },
-                { id: "c", text: "−a − b" },
-                { id: "d", text: "−b − a" },
+                { id: "a", text: "x − y" },
+                { id: "b", text: "y − x" },
+                { id: "c", text: "−x − y" },
+                { id: "d", text: "−y − x" },
               ],
-              richtig: "a",
+              richtig: "b",
               erklaerung:
-                "−(a − b) = −a + b. Umsortiert: b − a. Wichtig: das Minus wirkt auf " +
-                "beide Summanden, nicht nur auf den ersten.",
+                "−(x − y) = −x + y. Umsortiert: y − x. Das Minus wirkt auf beide " +
+                "Summanden, nicht nur auf den ersten.",
               tags: ["minusklammer", "term"],
             },
             {
-              id: "a7",
+              id: "a14",
               typ: "zahl",
               frage:
-                "Nachteinsatz: Die Temperatur fällt pro Stunde um 3 °C, Start bei 0 °C. " +
-                "Welchen Wert hat sie nach 4 Stunden? (Rechne 4 · (−3).)",
-              loesung: -12,
+                "Erste Hilfe: Ein Kühlpack senkt die Temperatur pro Minute um 2 °C, " +
+                "Start bei 0 °C. Welchen Wert hat sie nach 5 Minuten? (Rechne 5 · (−2).)",
+              loesung: -10,
               einheit: "°C",
               erklaerung:
-                "Jede Stunde −3 °C, über 4 Stunden: 4 · (−3) = −12. Positiv mal " +
-                "negativ ergibt negativ → −12 °C.",
-              tags: ["kontext", "produkt", "feuerwehr"],
+                "Jede Minute −2 °C, über 5 Minuten: 5 · (−2) = −10. Positiv mal " +
+                "negativ ergibt negativ → −10 °C.",
+              tags: ["kontext", "produkt", "erste-hilfe"],
             },
           ],
         },
@@ -143,92 +145,91 @@ export const rechensicherheit: Einheit = {
           krone: 1,
           aufgaben: [
             {
-              id: "b1",
+              id: "b12",
               typ: "single-choice",
-              frage: "Was ist (−3)²?",
+              frage: "Was ist (−6)²?",
               hinweis: "Die Klammer sagt: das Minus wird mitquadriert.",
               optionen: [
-                { id: "a", text: "9" },
-                { id: "b", text: "−9" },
-                { id: "c", text: "6" },
-                { id: "d", text: "−6" },
+                { id: "a", text: "36" },
+                { id: "b", text: "−36" },
+                { id: "c", text: "12" },
+                { id: "d", text: "−12" },
               ],
               richtig: "a",
               erklaerung:
-                "(−3)² heißt (−3)·(−3). Minus mal Minus = plus, also +9.",
+                "(−6)² heißt (−6)·(−6). Minus mal Minus = plus, also +36.",
               tags: ["potenz-negativ", "klammer"],
             },
             {
-              id: "b2",
+              id: "b13",
               typ: "single-choice",
-              frage: "Was ist −3²?",
-              hinweis: "Ohne Klammer wirkt die Hochzahl nur auf die 3.",
+              frage: "Was ist −4²?",
+              hinweis: "Ohne Klammer wirkt die Hochzahl nur auf die 4.",
               optionen: [
-                { id: "a", text: "−9" },
-                { id: "b", text: "9" },
-                { id: "c", text: "−6" },
-                { id: "d", text: "6" },
+                { id: "a", text: "−16" },
+                { id: "b", text: "16" },
+                { id: "c", text: "−8" },
+                { id: "d", text: "8" },
               ],
               richtig: "a",
               erklaerung:
-                "Ohne Klammer gilt −3² = −(3²) = −(9) = −9. Merke den Unterschied: " +
-                "(−3)² = 9, aber −3² = −9. Die Klammer entscheidet.",
+                "Ohne Klammer gilt −4² = −(4²) = −(16) = −16. Merke: (−4)² = 16, " +
+                "aber −4² = −16. Die Klammer entscheidet.",
               tags: ["potenz-negativ", "ohne-klammer"],
             },
             {
-              id: "b3",
+              id: "b14",
               typ: "zahl",
-              frage: "Berechne: (−3)³",
+              frage: "Berechne: (−2)³",
               hinweis:
                 "Rechne Schritt für Schritt und achte am Ende auf das Vorzeichen.",
-              loesung: -27,
+              loesung: -8,
               erklaerung:
-                "(−3)³ = (−3)·(−3)·(−3). Erst (−3)·(−3) = +9, dann +9·(−3) = −27. " +
-                "Ungerade Hochzahl → das Ergebnis bleibt negativ. Der Betrag 27 stimmt, " +
-                "nur das Vorzeichen kippt.",
+                "(−2)³ = (−2)·(−2)·(−2). Erst (−2)·(−2) = +4, dann +4·(−2) = −8. " +
+                "Ungerade Hochzahl → das Ergebnis bleibt negativ.",
               tags: ["potenz-negativ", "ungerade"],
             },
             {
-              id: "b4",
+              id: "b15",
               typ: "single-choice",
-              frage: "Für welche Hochzahl n ist (−1)ⁿ = 1?",
-              hinweis: "Paarweise heben sich zwei Minuszeichen zu einem Plus auf.",
+              frage: "Für welche Hochzahl n ist (−1)ⁿ = −1?",
+              hinweis: "Ein einzelnes übrig bleibendes Minus macht das Ergebnis negativ.",
               optionen: [
-                { id: "a", text: "wenn n gerade ist" },
-                { id: "b", text: "wenn n ungerade ist" },
+                { id: "a", text: "wenn n ungerade ist" },
+                { id: "b", text: "wenn n gerade ist" },
                 { id: "c", text: "immer" },
                 { id: "d", text: "nie" },
               ],
               richtig: "a",
               erklaerung:
-                "Gerade Hochzahl → die Minuszeichen heben sich paarweise auf → +1. " +
-                "Ungerade Hochzahl → ein Minus bleibt übrig → −1.",
+                "Ungerade Hochzahl → ein Minus bleibt übrig → −1. Bei gerader Hochzahl " +
+                "heben sich die Minuszeichen paarweise auf → +1.",
               tags: ["potenz-negativ", "gerade-ungerade"],
             },
             {
-              id: "b5",
+              id: "b16",
               typ: "single-choice",
               frage: "Welche Aussage stimmt?",
               hinweis: "Vergleiche, wo das Minus steht: innen (Klammer) oder außen.",
               optionen: [
-                { id: "a", text: "(−5)² = 25 und −5² = −25" },
-                { id: "b", text: "(−5)² = −25 und −5² = 25" },
-                { id: "c", text: "(−5)² und −5² sind dasselbe" },
-                { id: "d", text: "beide sind −25" },
+                { id: "a", text: "(−6)² = 36 und −6² = −36" },
+                { id: "b", text: "(−6)² = −36 und −6² = 36" },
+                { id: "c", text: "(−6)² und −6² sind dasselbe" },
+                { id: "d", text: "beide sind −36" },
               ],
               richtig: "a",
               erklaerung:
-                "Mit Klammer wird das Vorzeichen mitquadriert: (−5)² = 25. Ohne " +
-                "Klammer bleibt das Minus außen vor: −5² = −(25) = −25.",
+                "Mit Klammer wird das Vorzeichen mitquadriert: (−6)² = 36. Ohne " +
+                "Klammer bleibt das Minus außen vor: −6² = −(36) = −36.",
               tags: ["potenz-negativ", "klammer-vergleich"],
             },
             {
-              id: "b6",
+              id: "b17",
               typ: "zahl",
-              frage: "Berechne: (−4)²",
+              frage: "Berechne: (−5)²",
               hinweis: "Gerade Hochzahl auf einer eingeklammerten negativen Basis.",
-              loesung: 16,
-              erklaerung: "(−4)² = (−4)·(−4) = +16. Gerade Hochzahl → positiv.",
+              loesung: 25,
+              erklaerung: "(−5)² = (−5)·(−5) = +25. Gerade Hochzahl → positiv.",
               tags: ["potenz-negativ", "gerade"],
             },
           ],
@@ -239,57 +240,56 @@ export const rechensicherheit: Einheit = {
           krone: 2,
           aufgaben: [
             {
-              id: "b7",
+              id: "b18",
               typ: "zahl",
-              frage: "Berechne: −2⁴",
-              loesung: -16,
+              frage: "Berechne: −3⁴",
+              loesung: -81,
               erklaerung:
-                "Ohne Klammer gilt die Hochzahl nur für die 2: −2⁴ = −(2⁴) = −16.",
+                "Ohne Klammer gilt die Hochzahl nur für die 3: −3⁴ = −(81) = −81.",
               tags: ["potenz-negativ", "ohne-klammer"],
             },
             {
-              id: "b8",
+              id: "b19",
               typ: "zahl",
-              frage: "Berechne: (−2)⁴",
-              loesung: 16,
+              frage: "Berechne: (−3)⁴",
+              loesung: 81,
               erklaerung:
-                "Mit Klammer wird das Minus mit-potenziert. Gerade Hochzahl (4) → +16.",
+                "Mit Klammer wird das Minus mit-potenziert. Gerade Hochzahl (4) → +81.",
               tags: ["potenz-negativ", "gerade"],
             },
             {
-              id: "b9",
+              id: "b20",
               typ: "single-choice",
-              frage: "Welcher Ausdruck ist positiv?",
+              frage: "Welcher Ausdruck ist negativ?",
               optionen: [
-                { id: "a", text: "(−7)⁴" },
-                { id: "b", text: "(−7)³" },
-                { id: "c", text: "−7⁴" },
-                { id: "d", text: "−(7²)" },
+                { id: "a", text: "(−5)⁴" },
+                { id: "b", text: "(−5)³" },
+                { id: "c", text: "(−5)²" },
+                { id: "d", text: "5⁴" },
               ],
-              richtig: "a",
+              richtig: "b",
               erklaerung:
-                "Positiv wird es nur, wenn eine gerade Hochzahl auf einer " +
-                "eingeklammerten negativen Basis sitzt: (−7)⁴ > 0. Bei ungerader " +
-                "Hochzahl oder wenn das Minus außen steht, bleibt es negativ.",
+                "Negativ wird es nur bei ungerader Hochzahl auf einer eingeklammerten " +
+                "negativen Basis: (−5)³ < 0. Gerade Hochzahlen und positive Basen bleiben positiv.",
               tags: ["potenz-negativ", "vergleich"],
             },
             {
-              id: "b10",
+              id: "b21",
               typ: "term",
-              frage: "Vereinfache: (−x)²",
-              loesung: "x^2",
+              frage: "Vereinfache: (−y)²",
+              loesung: "y^2",
               erklaerung:
-                "(−x)² = (−x)·(−x) = x². Das Quadrat macht das Vorzeichen positiv. " +
-                "Aufpassen: −x² ist etwas anderes, nämlich −(x²).",
+                "(−y)² = (−y)·(−y) = y². Das Quadrat macht das Vorzeichen positiv. " +
+                "Aufpassen: −y² ist etwas anderes, nämlich −(y²).",
               tags: ["potenz-negativ", "term", "gerade"],
             },
             {
-              id: "b11",
+              id: "b22",
               typ: "term",
-              frage: "Vereinfache: (−x)³",
-              loesung: "-x^3",
+              frage: "Vereinfache: (−a)³",
+              loesung: "-a^3",
               erklaerung:
-                "(−x)³ = (−x)·(−x)·(−x) = −x³. Ungerade Hochzahl → das Minus überlebt.",
+                "(−a)³ = (−a)·(−a)·(−a) = −a³. Ungerade Hochzahl → das Minus überlebt.",
               tags: ["potenz-negativ", "term", "ungerade"],
             },
           ],
@@ -309,99 +309,99 @@ export const rechensicherheit: Einheit = {
           krone: 1,
           aufgaben: [
             {
-              id: "c1",
+              id: "c8",
               typ: "term",
-              frage: "Vereinfache: x³ · x⁵",
+              frage: "Vereinfache: y⁴ · y⁶",
               hinweis: "Gleiche Basis, multiplizieren → Hochzahlen …?",
-              loesung: "x^8",
+              loesung: "y^10",
               erklaerung:
                 "Gleiche Basis, Multiplikation → Hochzahlen addieren: " +
-                "x³·x⁵ = x^(3+5) = x⁸.",
+                "y⁴·y⁶ = y^(4+6) = y¹⁰.",
               tags: ["potenzgesetz", "produkt"],
             },
             {
-              id: "c2",
+              id: "c9",
               typ: "term",
-              frage: "Vereinfache: a⁷ : a²",
+              frage: "Vereinfache: b⁹ : b⁴",
               hinweis: "Gleiche Basis, dividieren → Hochzahlen …?",
-              loesung: "a^5",
+              loesung: "b^5",
               erklaerung:
                 "Gleiche Basis, Division → Hochzahlen subtrahieren: " +
-                "a⁷ : a² = a^(7−2) = a⁵.",
+                "b⁹ : b⁴ = b^(9−4) = b⁵.",
               tags: ["potenzgesetz", "quotient"],
             },
             {
-              id: "c3",
+              id: "c10",
               typ: "term",
-              frage: "Vereinfache: (x²)⁴",
+              frage: "Vereinfache: (a³)³",
               hinweis: "Potenz einer Potenz — hier wird nicht addiert.",
-              loesung: "x^8",
+              loesung: "a^9",
               erklaerung:
-                "Potenz einer Potenz → Hochzahlen multiplizieren: (x²)⁴ = x^(2·4) = x⁸. " +
-                "Nicht mit x²·x⁴ verwechseln (das wäre addieren).",
+                "Potenz einer Potenz → Hochzahlen multiplizieren: (a³)³ = a^(3·3) = a⁹. " +
+                "Nicht mit a³·a³ verwechseln (das wäre addieren).",
               tags: ["potenzgesetz", "potenz-von-potenz"],
             },
             {
-              id: "c4",
+              id: "c11",
               typ: "single-choice",
-              frage: "Was ist 5⁰?",
+              frage: "Was ist 12⁰?",
               hinweis: "Jede Zahl außer 0 hoch 0 ergibt denselben Wert.",
               optionen: [
                 { id: "a", text: "1" },
                 { id: "b", text: "0" },
-                { id: "c", text: "5" },
+                { id: "c", text: "12" },
                 { id: "d", text: "undefiniert" },
               ],
               richtig: "a",
               erklaerung:
-                "Jede Zahl (außer 0) hoch 0 ergibt 1: 5⁰ = 1. Grund: aⁿ : aⁿ = a⁰ und " +
+                "Jede Zahl (außer 0) hoch 0 ergibt 1: 12⁰ = 1. Grund: aⁿ : aⁿ = a⁰ und " +
                 "gleichzeitig = 1.",
               tags: ["potenzgesetz", "nuller"],
             },
             {
-              id: "c5",
+              id: "c12",
               typ: "term",
-              frage: "Vereinfache: (2a)³",
+              frage: "Vereinfache: (3x)²",
               hinweis: "Die Hochzahl gilt für JEDEN Faktor in der Klammer.",
-              loesung: "8*a^3",
-              akzeptiert: ["8a^3"],
+              loesung: "9*x^2",
+              akzeptiert: ["9x^2"],
               erklaerung:
-                "(2a)³ = 2³·a³ = 8a³. Achtung: die 2 wird auch potenziert, nicht nur " +
-                "das a.",
+                "(3x)² = 3²·x² = 9x². Achtung: die 3 wird auch quadriert, nicht nur " +
+                "das x.",
               tags: ["potenzgesetz", "produkt-in-klammer"],
             },
             {
-              id: "c6",
+              id: "c13",
               typ: "single-choice",
-              frage: "Was ist x⁻²?",
+              frage: "Was ist x⁻³?",
               hinweis: "Ein negativer Exponent macht die Zahl nicht negativ.",
               optionen: [
-                { id: "a", text: "1/x²" },
-                { id: "b", text: "−x²" },
-                { id: "c", text: "−2x" },
-                { id: "d", text: "1/x⁻²" },
+                { id: "a", text: "1/x³" },
+                { id: "b", text: "−x³" },
+                { id: "c", text: "−3x" },
+                { id: "d", text: "1/x⁻³" },
               ],
               richtig: "a",
               erklaerung:
-                "Ein negativer Exponent bedeutet Kehrwert: x⁻² = 1/x². Das Minus " +
+                "Ein negativer Exponent bedeutet Kehrwert: x⁻³ = 1/x³. Das Minus " +
                 "„schickt“ die Potenz in den Nenner — es macht sie nicht negativ.",
               tags: ["potenzgesetz", "negativer-exponent"],
             },
             {
-              id: "c7",
+              id: "c14",
               typ: "single-choice",
-              frage: "Was ist x² · x³?",
+              frage: "Was ist y³ · y²?",
               hinweis: "Multiplizieren gleicher Basen — addieren, nicht multiplizieren.",
               optionen: [
-                { id: "a", text: "x⁵" },
-                { id: "b", text: "x⁶" },
-                { id: "c", text: "x¹" },
-                { id: "d", text: "2x⁵" },
+                { id: "a", text: "y⁵" },
+                { id: "b", text: "y⁶" },
+                { id: "c", text: "y¹" },
+                { id: "d", text: "2y⁵" },
               ],
               richtig: "a",
               erklaerung:
-                "Multiplikation gleicher Basis → Hochzahlen addieren: x²·x³ = x⁵. " +
-                "x⁶ käme von (x²)³ — das ist Potenz einer Potenz.",
+                "Multiplikation gleicher Basis → Hochzahlen addieren: y³·y² = y⁵. " +
+                "y⁶ käme von (y³)² — das ist Potenz einer Potenz.",
               tags: ["potenzgesetz", "produkt", "verwechsler"],
             },
           ],

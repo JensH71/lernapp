@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { Mascot } from "../mascot/Mascot";
 import type { MascotCharacter } from "../mascot/mascotData";
 import {
@@ -7,14 +7,12 @@ import {
   type Lektion,
   type Leitidee,
 } from "../content";
+import { termeGleich } from "../content/term";
+import { protokolliere } from "../log";
+import { FertigButton } from "./FertigButton";
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Maskottchen-Adapter — die EINZIGE Stelle, die deine Mascot.tsx berührt.
- * Sollte deine Komponente eine andere Signatur haben (named statt default
- * export, andere Prop-Namen), musst du nur hier eine Zeile anpassen.
- * Erwartete API laut Projekt-README:
- *   <Mascot character="momo|pi|gauss" state="neutral|freude|aufmuntern"
- *           size="coach|hero" | pixelzahl />
  * ────────────────────────────────────────────────────────────────────────── */
 type CoachState = "neutral" | "freude" | "aufmuntern";
 function Coach({
@@ -39,8 +37,8 @@ function zufallsFigur(): MascotCharacter {
  * Antwort-Prüfung
  * ────────────────────────────────────────────────────────────────────────── */
 
-/** Symbolischer Term-Normalisierer (validiert gegen alle Term-Formen der
- *  Rechensicherheit-Einheit). Vergleicht NICHT Zeichen-für-Zeichen. */
+/** Fallback-Normalisierer (Formatierung), wenn ein Term außerhalb der
+ *  Polynom-Reichweite des symbolischen Normalizers liegt. */
 function normalizeTerm(raw: string): string {
   let s = raw.toLowerCase().trim();
   const sup: Record<string, string> = {
@@ -83,12 +81,20 @@ function istRichtig(
       return Math.abs(wert - aufgabe.loesung) <= tol;
     }
     case "term": {
-      const u = normalizeTerm(eingabe);
-      return [aufgabe.loesung, ...(aufgabe.akzeptiert ?? [])].some(
-        (l) => normalizeTerm(l) === u,
-      );
+      // Symbolische Äquivalenz (Polynom); Fallback auf Formatierungs-Vergleich,
+      // wenn der Term außerhalb der Polynom-Reichweite liegt (→ null).
+      const kandidaten = [aufgabe.loesung, ...(aufgabe.akzeptiert ?? [])];
+      return kandidaten.some((l) => {
+        const gleich = termeGleich(eingabe, l);
+        return gleich ?? (normalizeTerm(eingabe) === normalizeTerm(l));
+      });
     }
   }
+}
+
+/** content-Aufgabentyp → Log-Aufgabentyp. */
+function logTyp(t: Aufgabe["typ"]): "choice" | "zahl" | "term" {
+  return t === "zahl" ? "zahl" : t === "term" ? "term" : "choice";
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -126,7 +132,7 @@ function Auswahl({
   onWaehlen,
 }: {
   leitidee: Leitidee;
-  onWaehlen: (l: Lektion) => void;
+  onWaehlen: (skillId: string, l: Lektion) => void;
 }) {
   return (
     <div style={wrap}>
@@ -152,7 +158,7 @@ function Auswahl({
                 {skill.lektionen.map((lektion) => (
                   <button
                     key={lektion.id}
-                    onClick={() => onWaehlen(lektion)}
+                    onClick={() => onWaehlen(skill.id, lektion)}
                     style={{
                       ...karte,
                       textAlign: "left",
@@ -190,6 +196,7 @@ function Auswahl({
           ))}
         </section>
       ))}
+      <FertigButton />
     </div>
   );
 }
@@ -198,11 +205,14 @@ function Auswahl({
  * Player: spielt eine Lektion Aufgabe für Aufgabe durch
  * "Kein Scham"-Loop: falsch → aufmuntern + Mikroschritt, Aufgabe kommt in
  * derselben Session ans Ende der Schlange zurück (Fehler-Eimer). Kein Abzug.
+ * Jeder Durchlauf wird protokolliert (Nutzungslog / adaptiver Feedback-Loop).
  * ────────────────────────────────────────────────────────────────────────── */
 function LektionSpielen({
+  skillId,
   lektion,
   onBack,
 }: {
+  skillId: string;
   lektion: Lektion;
   onBack: () => void;
 }) {
@@ -216,8 +226,17 @@ function LektionSpielen({
   const [hinweisOffen, setHinweisOffen] = useState(false);
   const [figur, setFigur] = useState<MascotCharacter>(zufallsFigur);
 
+  // Für das Logging: Versuche je Item + Timing der aktuellen Aufgabe.
+  const versuche = useRef<Map<string, number>>(new Map());
+  const tStart = useRef<number>(Date.now());
+  const tErst = useRef<number | null>(null);
+
   const fertig = queue.length === 0;
   const aufgabe = queue[0];
+
+  function ersteEingabe() {
+    if (tErst.current == null) tErst.current = Date.now() - tStart.current;
+  }
 
   function reset() {
     setEingabe("");
@@ -225,17 +244,50 @@ function LektionSpielen({
     setHinweisOffen(false);
     setPhase("eingabe");
     setFigur(zufallsFigur()); // neue Figur für die nächste Aufgabe
+    tStart.current = Date.now();
+    tErst.current = null;
   }
 
   function neuStarten() {
     setQueue(lektion.aufgaben);
     setGemeistert(new Set());
+    versuche.current = new Map();
     reset();
   }
 
   function pruefen() {
-    setKorrekt(istRichtig(aufgabe, eingabe, auswahl));
+    const ok = istRichtig(aufgabe, eingabe, auswahl);
+    setKorrekt(ok);
     setPhase("feedback");
+
+    // ── Verdrahten: jeden Durchlauf loggen (schluckt Fehler intern). ──
+    const n = (versuche.current.get(aufgabe.id) ?? 0) + 1;
+    versuche.current.set(aufgabe.id, n);
+    const roh =
+      aufgabe.typ === "single-choice" || aufgabe.typ === "multiple-choice"
+        ? [...auswahl].sort().join(",")
+        : eingabe;
+
+    void protokolliere({
+      skillId,
+      aufgabeId: aufgabe.id,
+      typ: logTyp(aufgabe.typ),
+      hilfsmittel: aufgabe.hilfsmittel ?? "ohne",
+      kronenLevel: lektion.krone,
+      ausgang: ok ? "richtig" : "falsch",
+      antwortRoh: roh,
+      erwartet:
+        aufgabe.typ === "zahl"
+          ? String(aufgabe.loesung)
+          : aufgabe.typ === "term"
+            ? aufgabe.loesung
+            : undefined,
+      versuchNr: n,
+      wiederholung: n > 1,
+      tErstEingabe: tErst.current ?? undefined,
+      tGesamt: Date.now() - tStart.current,
+      tags: aufgabe.tags,
+    });
   }
 
   function weiter() {
@@ -246,6 +298,26 @@ function LektionSpielen({
       setQueue((q) => [...q.slice(1), q[0]]); // zurück in den Fehler-Eimer
     }
     reset();
+  }
+
+  /** Verlassen mitten in einer Aufgabe → als Abbruch loggen (fürs Pacing). */
+  function zurueck() {
+    if (!fertig && phase === "eingabe") {
+      void protokolliere({
+        skillId,
+        aufgabeId: aufgabe.id,
+        typ: logTyp(aufgabe.typ),
+        hilfsmittel: aufgabe.hilfsmittel ?? "ohne",
+        kronenLevel: lektion.krone,
+        ausgang: "abbruch",
+        antwortRoh: "",
+        versuchNr: (versuche.current.get(aufgabe.id) ?? 0) + 1,
+        wiederholung: (versuche.current.get(aufgabe.id) ?? 0) >= 1,
+        tGesamt: Date.now() - tStart.current,
+        tags: aufgabe.tags,
+      });
+    }
+    onBack();
   }
 
   /* ── Abschluss-Screen ── */
@@ -283,7 +355,7 @@ function LektionSpielen({
       {/* Kopf: zurück + Fortschritt */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
         <button
-          onClick={onBack}
+          onClick={zurueck}
           aria-label="Zurück"
           style={{
             border: "none",
@@ -394,15 +466,16 @@ function LektionSpielen({
                 <button
                   key={opt.id}
                   disabled={phase === "feedback"}
-                  onClick={() =>
+                  onClick={() => {
+                    ersteEingabe();
                     setAuswahl((cur) =>
                       aufgabe.typ === "single-choice"
                         ? [opt.id]
                         : cur.includes(opt.id)
                           ? cur.filter((x) => x !== opt.id)
                           : [...cur, opt.id],
-                    )
-                  }
+                    );
+                  }}
                   style={{
                     ...karte,
                     textAlign: "left",
@@ -426,7 +499,10 @@ function LektionSpielen({
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <input
               value={eingabe}
-              onChange={(e) => setEingabe(e.target.value)}
+              onChange={(e) => {
+                ersteEingabe();
+                setEingabe(e.target.value);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && beantwortbar && phase === "eingabe") pruefen();
               }}
@@ -513,11 +589,15 @@ function LektionSpielen({
  * Einstieg: Auswahl ↔ Player
  * ────────────────────────────────────────────────────────────────────────── */
 export default function Lernpfad() {
-  const [lektion, setLektion] = useState<Lektion | null>(null);
+  const [sel, setSel] = useState<{ skillId: string; lektion: Lektion } | null>(null);
 
-  return lektion ? (
-    <LektionSpielen lektion={lektion} onBack={() => setLektion(null)} />
+  return sel ? (
+    <LektionSpielen
+      skillId={sel.skillId}
+      lektion={sel.lektion}
+      onBack={() => setSel(null)}
+    />
   ) : (
-    <Auswahl leitidee={fundament} onWaehlen={setLektion} />
+    <Auswahl leitidee={fundament} onWaehlen={(skillId, lektion) => setSel({ skillId, lektion })} />
   );
 }
