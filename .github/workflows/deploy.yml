@@ -19,6 +19,9 @@ jobs:
       - run: rm -rf node_modules package-lock.json
       - run: npm install
       - run: npm run build
+        env:
+          VITE_LOG_SHEET_URL: ${{ secrets.VITE_LOG_SHEET_URL }}
+          VITE_LOG_SHEET_TOKEN: ${{ secrets.VITE_LOG_SHEET_TOKEN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
