@@ -1,2 +1,30 @@
-
+# Abhängigkeiten (werden in CI frisch installiert)
+node_modules/
+ 
+# Build-Ausgabe (in CI frisch gebaut & als Pages-Artefakt hochgeladen)
+dist/
+dist-ssr/
+ 
+# TypeScript inkrementelle Build-Infos
+*.tsbuildinfo
+ 
+# Lokale Env-Dateien — Secrets kommen in CI aus GitHub Actions Secrets
+.env
 .env.local
+.env.*.local
+ 
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+ 
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+ 
