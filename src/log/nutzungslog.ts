@@ -12,8 +12,9 @@ import type {
 } from './events';
 import { klassifiziereFehler, type FehlerRegel } from './klassifikation';
 import {
-  appendEvent, alleEvents, eventsNachSkill, leereLog,
+  appendEvent, alleEvents, eventsNachSkill, leereLog, speicherVerfuegbar,
 } from './store';
+import { merkeSchreibVersuch, merkeSchreibFehler, laufzeitStatus } from './laufzeit';
 import {
   skillMastery, faelligkeitsListe, fehlerEimer, fehlerVerteilung,
   dominierendeFehlerquelle, itemUebersicht, pacingKennzahlen,
@@ -49,8 +50,10 @@ export interface ProtokollEingabe {
   tags?: string[];
 }
 
-/** Ein Event bauen, klassifizieren, persistieren. Wirft nie nach oben. */
-export async function protokolliere(e: ProtokollEingabe): Promise<void> {
+/** Ein Event bauen, klassifizieren, persistieren. Wirft nie nach oben.
+ *  Rückgabe: true = persistiert, false = Schreiben fehlgeschlagen (bereits geloggt). */
+export async function protokolliere(e: ProtokollEingabe): Promise<boolean> {
+  merkeSchreibVersuch();
   try {
     const fehlerkat: Fehlerkategorie | undefined =
       e.ausgang === 'falsch'
@@ -79,8 +82,12 @@ export async function protokolliere(e: ProtokollEingabe): Promise<void> {
       tags: e.tags,
     };
     await appendEvent(ev);
+    return true;
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    merkeSchreibFehler(msg);
     console.warn('[nutzungslog] Event nicht gespeichert (Lektion läuft weiter):', err);
+    return false;
   }
 }
 
@@ -116,4 +123,44 @@ export async function pacing() {
 /** Reset (z. B. für ein Debug-/Datenschutz-Menü). */
 export async function logZuruecksetzen(): Promise<void> {
   return leereLog();
+}
+
+export interface LogDiagnose {
+  /** Lässt sich der Store überhaupt öffnen? */
+  verfuegbar: boolean;
+  /** Anzahl gespeicherter Events (null = Lesen fehlgeschlagen). */
+  anzahl: number | null;
+  /** Fehlermeldung, falls das Lesen scheiterte. */
+  lesefehler?: string;
+  /** Schreibversuche seit App-Start (diese Sitzung). */
+  schreibVersuche: number;
+  /** Davon fehlgeschlagen — der eigentliche „stille Datenverlust"-Zähler. */
+  schreibFehler: number;
+  /** Meldung des letzten Schreibfehlers. */
+  letzterSchreibFehler?: string;
+}
+
+/**
+ * Ehrlicher Gesundheits-Check. Für ein Debug-Menü und dafür, „Store leer" von
+ * „Store kaputt" / „Schreiben schlug fehl" zu unterscheiden. Wirft nie.
+ */
+export async function logDiagnose(): Promise<LogDiagnose> {
+  const rt = laufzeitStatus();
+  let verfuegbar = false;
+  let anzahl: number | null = null;
+  let lesefehler: string | undefined;
+  try {
+    verfuegbar = await speicherVerfuegbar();
+    anzahl = (await alleEvents()).length;
+  } catch (err) {
+    lesefehler = err instanceof Error ? err.message : String(err);
+  }
+  return {
+    verfuegbar,
+    anzahl,
+    lesefehler,
+    schreibVersuche: rt.schreibVersuche,
+    schreibFehler: rt.schreibFehler,
+    letzterSchreibFehler: rt.letzterSchreibFehler,
+  };
 }

@@ -30,13 +30,46 @@ function oeffneDb(): Promise<IDBDatabase> {
         os.createIndex('ts', 'ts', { unique: false });
       }
     };
-    req.onsuccess = () => resolve(req.result);
+    // Blockiert = eine ältere Verbindung hält die DB offen. Auf iOS-Safari kann
+    // das nach App-Wechseln vorkommen; als Fehler behandeln statt ewig hängen.
+    req.onblocked = () => reject(new Error('IndexedDB-Öffnen blockiert (andere Verbindung offen).'));
+    req.onsuccess = () => {
+      const conn = req.result;
+      // Verbindung, die serverseitig weg-migriert oder geschlossen wird, nicht
+      // weiter im Cache halten — sonst scheitern alle Folge-Transaktionen still.
+      conn.onversionchange = () => { conn.close(); dbPromise = null; };
+      conn.onclose = () => { dbPromise = null; };
+      resolve(conn);
+    };
     req.onerror = () => reject(req.error);
   });
 }
 
 function db(): Promise<IDBDatabase> {
-  return (dbPromise ??= oeffneDb());
+  if (!dbPromise) {
+    const p = oeffneDb();
+    // Eine ABGELEHNTE Promise niemals cachen: sonst ist der Store nach einem
+    // einzigen fehlgeschlagenen open für die ganze Sitzung vergiftet (jeder
+    // spätere Write/Read reitet auf derselben toten Promise). Beim Fehlschlag
+    // Cache leeren, damit der nächste Aufruf frisch öffnet (iOS flaket beim
+    // ersten open nach Kaltstart gern).
+    p.catch(() => { if (dbPromise === p) dbPromise = null; });
+    dbPromise = p;
+  }
+  return dbPromise;
+}
+
+/**
+ * Leichte Verfügbarkeits-Probe: Kann der Store geöffnet werden? Wirft nie.
+ * Für Diagnose/UI — unterscheidet „Store kaputt/unlesbar" von „Store leer".
+ */
+export async function speicherVerfuegbar(): Promise<boolean> {
+  try {
+    await db();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Ein Event anhängen (append-only; bestehende werden nie überschrieben). */

@@ -16,6 +16,7 @@
 
 import type { AufgabenEvent } from './events';
 import { alleEvents } from './store';
+import { laufzeitStatus } from './laufzeit';
 
 const env = import.meta.env ?? {};
 const ZIEL_URL: string | undefined = env.VITE_LOG_SHEET_URL;
@@ -28,20 +29,29 @@ export function logZielKonfiguriert(): boolean {
 export interface SendeErgebnis {
   ok: boolean;
   anzahl: number;
-  grund?: 'nicht-konfiguriert' | 'leer' | 'netzwerk';
+  grund?: 'nicht-konfiguriert' | 'leer' | 'speicher' | 'netzwerk';
+  /** Schreibfehler dieser Sitzung — >0 heißt: es ging Übungs-Verlauf still verloren. */
+  schreibfehlerSession: number;
 }
 
 /** Gesamten Log an das Sheet senden. Idempotent (Server dedupliziert per id). */
 export async function sendeLog(): Promise<SendeErgebnis> {
-  if (!logZielKonfiguriert()) return { ok: false, anzahl: 0, grund: 'nicht-konfiguriert' };
+  const schreibfehlerSession = laufzeitStatus().schreibFehler;
 
-  let events: AufgabenEvent[] = [];
+  if (!logZielKonfiguriert()) {
+    return { ok: false, anzahl: 0, grund: 'nicht-konfiguriert', schreibfehlerSession };
+  }
+
+  let events: AufgabenEvent[];
   try {
     events = await alleEvents();
   } catch {
-    events = [];
+    // Lesen fehlgeschlagen ist NICHT dasselbe wie „nichts geübt" — ehrlich melden.
+    return { ok: false, anzahl: 0, grund: 'speicher', schreibfehlerSession };
   }
-  if (events.length === 0) return { ok: false, anzahl: 0, grund: 'leer' };
+  if (events.length === 0) {
+    return { ok: false, anzahl: 0, grund: 'leer', schreibfehlerSession };
+  }
 
   try {
     // no-cors + text/plain: fire-and-forget, kein CORS-Preflight. Die Antwort
@@ -54,8 +64,8 @@ export async function sendeLog(): Promise<SendeErgebnis> {
       body: JSON.stringify({ token: TOKEN ?? '', events }),
       keepalive: true,
     });
-    return { ok: true, anzahl: events.length };
+    return { ok: true, anzahl: events.length, schreibfehlerSession };
   } catch {
-    return { ok: false, anzahl: events.length, grund: 'netzwerk' };
+    return { ok: false, anzahl: events.length, grund: 'netzwerk', schreibfehlerSession };
   }
 }

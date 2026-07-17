@@ -27,11 +27,13 @@ export {
 } from './derive';
 
 export type { ProtokollEingabe } from './nutzungslog';
+export type { LogDiagnose } from './nutzungslog';
 export {
   protokolliere,
   skillStatus, lueckenkarte, naechsteWiederholung,
-  schwerpunktFehler, skillItems, pacing, logZuruecksetzen,
+  schwerpunktFehler, skillItems, pacing, logZuruecksetzen, logDiagnose,
 } from './nutzungslog';
+export { speicherVerfuegbar } from './store';
 
 export type { SendeErgebnis } from './export';
 export { sendeLog, logZielKonfiguriert } from './export';
