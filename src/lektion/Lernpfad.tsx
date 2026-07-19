@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Mascot } from "../mascot/Mascot";
 import type { MascotCharacter } from "../mascot/mascotData";
 import {
@@ -9,6 +9,8 @@ import {
 } from "../content";
 import { termeGleich } from "../content/term";
 import { protokolliere } from "../log";
+import { useFortschritt } from "../fortschritt";
+import { CampCountdown } from "../camp/CampCountdown";
 import { FertigButton } from "./FertigButton";
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -129,13 +131,16 @@ const chip = (bg: string, fg: string): CSSProperties => ({
  * ────────────────────────────────────────────────────────────────────────── */
 function Auswahl({
   leitidee,
+  abgeschlossen,
   onWaehlen,
 }: {
   leitidee: Leitidee;
+  abgeschlossen: (lektionId: string) => boolean;
   onWaehlen: (skillId: string, l: Lektion) => void;
 }) {
   return (
     <div style={wrap}>
+      <CampCountdown />
       {leitidee.einheiten.map((einheit) => (
         <section key={einheit.id} style={{ marginBottom: 8 }}>
           <h1 style={{ fontSize: "1.7rem", lineHeight: 1.15 }}>
@@ -186,9 +191,15 @@ function Auswahl({
                         {lektion.aufgaben.length} Aufgaben
                       </span>
                     </span>
-                    <span style={chip("#fff3ea", "var(--accent-edge)")}>
-                      Krone {lektion.krone}
-                    </span>
+                    {abgeschlossen(lektion.id) ? (
+                      <span style={chip("#eefbe6", "var(--green-edge)")}>
+                        ✓ geschafft
+                      </span>
+                    ) : (
+                      <span style={chip("#fff3ea", "var(--accent-edge)")}>
+                        Krone {lektion.krone}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -211,10 +222,12 @@ function LektionSpielen({
   skillId,
   lektion,
   onBack,
+  onAbschluss,
 }: {
   skillId: string;
   lektion: Lektion;
   onBack: () => void;
+  onAbschluss: (lektionId: string, krone: number) => void;
 }) {
   const gesamt = lektion.aufgaben.length;
   const [queue, setQueue] = useState<Aufgabe[]>(lektion.aufgaben);
@@ -230,9 +243,18 @@ function LektionSpielen({
   const versuche = useRef<Map<string, number>>(new Map());
   const tStart = useRef<number>(Date.now());
   const tErst = useRef<number | null>(null);
+  // Abschluss genau einmal je Durchlauf melden (Persistenz/Streak).
+  const abschlussGemeldet = useRef(false);
 
   const fertig = queue.length === 0;
   const aufgabe = queue[0];
+
+  useEffect(() => {
+    if (fertig && !abschlussGemeldet.current) {
+      abschlussGemeldet.current = true;
+      onAbschluss(lektion.id, lektion.krone);
+    }
+  }, [fertig, onAbschluss, lektion.id, lektion.krone]);
 
   function ersteEingabe() {
     if (tErst.current == null) tErst.current = Date.now() - tStart.current;
@@ -252,6 +274,7 @@ function LektionSpielen({
     setQueue(lektion.aufgaben);
     setGemeistert(new Set());
     versuche.current = new Map();
+    abschlussGemeldet.current = false;
     reset();
   }
 
@@ -590,14 +613,20 @@ function LektionSpielen({
  * ────────────────────────────────────────────────────────────────────────── */
 export default function Lernpfad() {
   const [sel, setSel] = useState<{ skillId: string; lektion: Lektion } | null>(null);
+  const { lektionAbschliessen, abgeschlossen } = useFortschritt();
 
   return sel ? (
     <LektionSpielen
       skillId={sel.skillId}
       lektion={sel.lektion}
       onBack={() => setSel(null)}
+      onAbschluss={lektionAbschliessen}
     />
   ) : (
-    <Auswahl leitidee={fundament} onWaehlen={(skillId, lektion) => setSel({ skillId, lektion })} />
+    <Auswahl
+      leitidee={fundament}
+      abgeschlossen={abgeschlossen}
+      onWaehlen={(skillId, lektion) => setSel({ skillId, lektion })}
+    />
   );
 }
